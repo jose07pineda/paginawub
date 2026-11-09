@@ -1,0 +1,1121 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>MediCare Plus</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&display=swap">
+<script>document.documentElement.lang = 'es';</script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          canvas: 'var(--canvas)', surface: 'var(--surface)', surface2: 'var(--surface-2)',
+          ink: 'var(--ink)', muted: 'var(--muted)', line: 'var(--line)', lineStrong: 'var(--line-strong)',
+          brand: 'var(--brand)', link: 'var(--link)', tint: 'var(--tint)', onTint: 'var(--on-tint)'
+        },
+        fontFamily: {
+          display: ['Newsreader', 'Georgia', 'serif'],
+          sans: ['Public Sans', 'system-ui', 'sans-serif'],
+          mono: ['IBM Plex Mono', 'ui-monospace', 'monospace']
+        }
+      }
+    }
+  };
+</script>
+<style>
+  /* Layout concept: "ficha clínica". Cool paper, ECG-paper grid in the hero, mono labels for
+     registros, horarios and códigos de cita, one serif voice for headlines. */
+  :root {
+    --canvas: #f8fafc; --surface: #ffffff; --surface-2: #eef3f8;
+    --ink: #0f172a; --muted: #475569;
+    --line: #dbe3ec; --line-strong: #64748b;
+    --brand: #0284c7; --link: #0369a1;
+    --btn: #0369a1; --btn-hover: #075985; --btn-ink: #ffffff;
+    --tint: #e0f2fe; --on-tint: #075985;
+    --ok: #10b981; --ok-ink: #047857; --ok-tint: #d1fae5; --on-ok-tint: #065f46;
+    --bad: #b91c1c; --bad-tint: #fee2e2;
+    --foot-bg: #0f172a; --foot-ink: #e2e8f0; --foot-muted: #a9b8cf; --foot-link: #7dd3fc; --foot-line: #26344d;
+    --grid: color-mix(in srgb, var(--brand) 13%, transparent);
+    --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+    --font-body: 'Public Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --canvas: #0b1220; --surface: #111a2c; --surface-2: #0f1829;
+      --ink: #e8eef8; --muted: #a8b5c9;
+      --line: #25324a; --line-strong: #8190ab;
+      --brand: #38bdf8; --link: #7dd3fc;
+      --btn: #38bdf8; --btn-hover: #7dd3fc; --btn-ink: #04202f;
+      --tint: #0c2a42; --on-tint: #bae6fd;
+      --ok: #34d399; --ok-ink: #6ee7b7; --ok-tint: #0b2e25; --on-ok-tint: #a7f3d0;
+      --bad: #fca5a5; --bad-tint: #3a1418;
+      --foot-bg: #060b16; --foot-ink: #e2e8f0; --foot-muted: #a9b8cf; --foot-link: #7dd3fc; --foot-line: #1c2740;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --canvas: #0b1220; --surface: #111a2c; --surface-2: #0f1829;
+    --ink: #e8eef8; --muted: #a8b5c9;
+    --line: #25324a; --line-strong: #8190ab;
+    --brand: #38bdf8; --link: #7dd3fc;
+    --btn: #38bdf8; --btn-hover: #7dd3fc; --btn-ink: #04202f;
+    --tint: #0c2a42; --on-tint: #bae6fd;
+    --ok: #34d399; --ok-ink: #6ee7b7; --ok-tint: #0b2e25; --on-ok-tint: #a7f3d0;
+    --bad: #fca5a5; --bad-tint: #3a1418;
+    --foot-bg: #060b16; --foot-ink: #e2e8f0; --foot-muted: #a9b8cf; --foot-link: #7dd3fc; --foot-line: #1c2740;
+    color-scheme: dark;
+  }
+
+  html { scroll-padding-top: 5rem; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+  html.modal-open { overflow: hidden; }
+  body {
+    background: var(--canvas); color: var(--ink);
+    font-family: var(--font-body); font-size: 1rem; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+    z-index: 10; background: var(--canvas);
+  }
+  [id] { scroll-margin-top: 5rem; }
+  :focus-visible { outline: 3px solid var(--link); outline-offset: 3px; border-radius: 4px; }
+  .wrap {
+    width: 100%; max-width: 74rem; margin-inline: auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .mono { font-family: var(--font-mono); }
+  .muted { color: var(--muted); }
+  .skip {
+    position: absolute; left: 1rem; top: -4rem; z-index: 100; background: var(--btn); color: var(--btn-ink);
+    padding: .75rem 1rem; border-radius: .5rem; font-weight: 600; text-decoration: none;
+  }
+  .skip:focus { top: calc(env(safe-area-inset-top, 0px) + .5rem); }
+
+  /* Type */
+  .eyebrow { font-family: var(--font-mono); font-size: .75rem; font-weight: 500; letter-spacing: .09em; text-transform: uppercase; color: var(--link); margin: 0; }
+  .display { font-family: var(--font-display); font-weight: 500; font-size: clamp(2.25rem, 5.2vw, 3.9rem); line-height: 1.06; letter-spacing: -.015em; text-wrap: balance; margin: 0; }
+  .h2 { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.75rem, 3.4vw, 2.5rem); line-height: 1.12; letter-spacing: -.01em; text-wrap: balance; margin: 0; }
+  .lead { font-size: 1.125rem; color: var(--muted); max-width: 34rem; margin: 0; }
+  .card-title { font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; line-height: 1.2; margin: 0; }
+  .fine { font-size: .8125rem; color: var(--muted); margin: 0; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    min-height: 2.75rem; padding: .6rem 1.25rem; border-radius: .625rem;
+    border: 1.5px solid transparent; font: inherit; font-weight: 600; font-size: .9375rem; line-height: 1.2;
+    text-decoration: none; cursor: pointer; transition: background-color .15s, border-color .15s, color .15s;
+  }
+  .btn-primary { background: var(--btn); color: var(--btn-ink); }
+  .btn-primary:hover { background: var(--btn-hover); }
+  .btn-outline { background: transparent; color: var(--link); border-color: var(--link); }
+  .btn-outline:hover { background: var(--tint); color: var(--on-tint); }
+  .btn-sm { min-height: 2.5rem; padding: .45rem 1rem; }
+  .btn:disabled { background: var(--surface-2); color: var(--muted); border-color: var(--line); cursor: not-allowed; }
+  .btn[disabled][aria-busy="true"] { background: var(--btn); color: var(--btn-ink); border-color: var(--btn); cursor: progress; }
+  .spinner { display: none; width: 1.05rem; height: 1.05rem; border-radius: 50%; border: 2.5px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite; }
+  .btn[aria-busy="true"] .spinner { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .linklike { background: none; border: 0; padding: 0; color: var(--link); text-decoration: underline; text-underline-offset: .2em; font: inherit; cursor: pointer; text-align: left; }
+  .linklike:hover { color: var(--on-tint); }
+  .icon-btn { display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: .625rem; border: 1.5px solid var(--line-strong); background: var(--surface); color: var(--ink); cursor: pointer; flex: none; }
+  .icon-btn:hover { border-color: var(--link); color: var(--link); }
+
+  /* Header */
+  .site-header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40; background: var(--canvas); border-bottom: 1px solid var(--line); }
+  .hdr { display: flex; align-items: center; gap: .75rem; min-height: 4rem; }
+  .brand { display: inline-flex; align-items: center; gap: .55rem; color: var(--ink); text-decoration: none; font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; letter-spacing: -.01em; }
+  .brand-mark { color: var(--btn); flex: none; }
+  .brand em { font-style: normal; color: var(--link); }
+  .nav { margin-left: auto; }
+  .nav-links { display: none; list-style: none; margin: 0; position: absolute; left: 0; right: 0; top: 100%; flex-direction: column; gap: .25rem;
+    padding: .5rem max(16px, env(safe-area-inset-right, 0px)) 1rem max(16px, env(safe-area-inset-left, 0px));
+    background: var(--canvas); border-bottom: 1px solid var(--line); }
+  .nav-links[data-open="true"] { display: flex; }
+  .nav-links a { display: block; padding: .75rem .5rem; color: var(--ink); text-decoration: none; font-weight: 500; border-radius: .5rem; }
+  .nav-links a:hover { background: var(--tint); color: var(--on-tint); }
+  .nav-links a[aria-current="true"] { color: var(--link); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: .4em; }
+  .hdr-actions { display: flex; align-items: center; gap: .5rem; }
+  @media (min-width: 860px) {
+    .nav-links { display: flex; position: static; flex-direction: row; padding: 0; border: 0; background: transparent; gap: .25rem; }
+    .menu-btn { display: none; }
+    .nav { margin-right: .5rem; }
+  }
+
+  /* Hero */
+  .hero { padding-block: clamp(2.5rem, 6vw, 5rem); }
+  .hero-grid { display: grid; gap: 2.5rem; align-items: center; }
+  @media (min-width: 960px) { .hero-grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 3.5rem; } }
+  .hero-copy { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: .25rem; }
+  .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 1rem 0 0; border-top: 1px solid var(--line-strong); }
+  .metrics > div { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: .2rem; padding: .9rem .75rem .25rem 0; min-width: 0; }
+  .metrics > div + div { border-left: 1px solid var(--line); padding-left: .9rem; }
+  .metrics dd { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: clamp(1.2rem, 4.2vw, 1.9rem); line-height: 1.1; }
+  .metrics dt { font-size: .8125rem; color: var(--muted); line-height: 1.3; }
+
+  .cover {
+    position: relative; min-width: 0; max-width: 100%; min-height: 26rem; display: flex; flex-direction: column; justify-content: space-between; gap: 1.5rem;
+    padding: 1.25rem; border: 1px solid var(--line); border-radius: 1.25rem; background-color: var(--surface); overflow: hidden;
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+  .cover-tag { align-self: flex-start; font-family: var(--font-mono); font-size: .75rem; letter-spacing: .06em; color: var(--on-tint); background: var(--tint); padding: .25rem .6rem; border-radius: 999px; }
+  .ecg { width: 100%; height: auto; display: block; overflow: visible; }
+  .ecg path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .ecg .base { stroke: var(--link); stroke-width: 2.5; }
+  .ecg .pulse { stroke: var(--brand); stroke-width: 6; stroke-dasharray: 70 930; animation: pulse 3.6s linear infinite; }
+  @keyframes pulse { from { stroke-dashoffset: 70; } to { stroke-dashoffset: -930; } }
+  @media (prefers-reduced-motion: reduce) { .ecg .pulse { display: none; } }
+  .next-card { background: var(--surface); border: 1px solid var(--line-strong); border-radius: .875rem; padding: 1rem 1.125rem; display: flex; flex-direction: column; gap: .35rem; box-shadow: 0 14px 30px -18px rgba(2, 6, 23, .5); }
+  .next-when { font-family: var(--font-display); font-weight: 600; font-size: 1.5rem; line-height: 1.15; margin: 0; }
+  .label { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin: 0; }
+
+  /* Sections */
+  .section { padding-block: clamp(3rem, 7vw, 5.5rem); }
+  .band { background: var(--surface-2); border-block: 1px solid var(--line); }
+  .section-head { max-width: 40rem; display: flex; flex-direction: column; gap: .75rem; margin-bottom: 2rem; }
+  .section-head p { margin: 0; }
+  .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 600px) { .cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1000px) { .cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .cols-auto { grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: .875rem; padding: 1.25rem; display: flex; flex-direction: column; gap: .8rem; min-width: 0; transition: border-color .15s, box-shadow .15s; }
+  .card:hover, .card:focus-within { border-color: var(--link); box-shadow: 0 12px 26px -18px rgba(3, 105, 161, .55); }
+  .card .btn { margin-top: auto; }
+  .card-text { margin: 0; font-size: .9688rem; }
+  .meta { font-size: .8125rem; color: var(--muted); margin: 0; }
+  .ico { width: 3rem; height: 3rem; border-radius: .75rem; display: grid; place-items: center; background: var(--tint); color: var(--on-tint); }
+  .tag { display: inline-block; margin: .25rem 0 0; padding: .15rem .6rem; border-radius: 999px; background: var(--tint); color: var(--on-tint); font-size: .8125rem; font-weight: 600; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.5rem; }
+  .chip { min-height: 2.5rem; padding: .4rem .95rem; border-radius: 999px; border: 1.5px solid var(--line-strong); background: var(--surface); color: var(--ink); font: inherit; font-weight: 600; font-size: .875rem; cursor: pointer; transition: border-color .15s, background-color .15s; }
+  .chip:hover { border-color: var(--link); }
+  .chip[aria-pressed="true"] { background: var(--btn); color: var(--btn-ink); border-color: var(--btn); }
+  .team-top { display: flex; gap: .9rem; align-items: center; }
+  .avatar { flex: none; width: 3.5rem; height: 3.5rem; border-radius: 50%; display: grid; place-items: center; background: var(--tint); color: var(--on-tint); border: 1.5px solid var(--brand); font-family: var(--font-display); font-weight: 600; font-size: 1.25rem; }
+  .facts { margin: 0; display: flex; flex-direction: column; gap: .75rem; font-size: .9rem; }
+  .facts dt { font-family: var(--font-mono); font-size: .7188rem; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+  .facts dd { margin: .15rem 0 0; }
+  .sched { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .35rem; }
+  .sched .mono { font-size: .8125rem; font-weight: 500; display: block; }
+  .placeholder { border: 1.5px dashed var(--line-strong); background: transparent; }
+  .placeholder:hover { border-color: var(--line-strong); box-shadow: none; }
+
+  /* Footer */
+  .site-footer { background: var(--foot-bg); color: var(--foot-ink); padding-block: 3.5rem 2rem; }
+  .foot-grid { display: grid; gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
+  .site-footer h2 { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .09em; text-transform: uppercase; color: var(--foot-muted); margin: 0 0 .75rem; font-weight: 500; }
+  .site-footer p, .site-footer li { margin: 0; color: var(--foot-ink); font-size: .9375rem; }
+  .site-footer ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+  .site-footer .muted-f { color: var(--foot-muted); }
+  .site-footer a, .site-footer .linklike { color: var(--foot-link); }
+  .foot-bottom { margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--foot-line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem 2rem; }
+  .foot-bottom p { font-size: .8125rem; color: var(--foot-muted); }
+  .site-footer :focus-visible { outline-color: var(--foot-link); }
+
+  /* Dialogs */
+  .sheet { border: 0; padding: 0; margin: auto; width: min(40rem, calc(100vw - 1.5rem)); max-height: calc(100dvh - 1.5rem); border-radius: 1rem; background: var(--surface); color: var(--ink); box-shadow: 0 30px 80px -20px rgba(2, 6, 23, .55); overflow: hidden; }
+  .sheet[open] { display: flex; flex-direction: column; }
+  .sheet::backdrop { background: rgba(2, 6, 23, .62); }
+  .sheet-head { display: flex; gap: 1rem; align-items: flex-start; justify-content: space-between; padding: 1.25rem 1.5rem 1rem; border-bottom: 1px solid var(--line); }
+  .sheet-head h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.6rem; line-height: 1.15; margin: 0; }
+  .sheet-head p { margin: .3rem 0 0; font-size: .9rem; color: var(--muted); }
+  .sheet-form { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+  .sheet-body { overflow: auto; padding: 1.25rem 1.5rem; flex: 1 1 auto; min-height: 0; overscroll-behavior: contain; }
+  .sheet-foot { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .75rem; padding: 1rem 1.5rem; border-top: 1px solid var(--line); background: var(--surface); }
+  .policy p, .policy li { font-size: .9375rem; }
+  .policy h3 { font-family: var(--font-display); font-size: 1.15rem; margin: 1.25rem 0 .35rem; }
+
+  fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+  legend { padding: 0; }
+  .group { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
+  .group-title { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .09em; text-transform: uppercase; color: var(--link); font-weight: 500; margin-bottom: .25rem; }
+  .row { display: grid; gap: 1rem; }
+  @media (min-width: 560px) { .row-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .row-doc { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); } }
+  .field label, .field .lbl { display: block; font-weight: 600; font-size: .9rem; margin-bottom: .35rem; }
+  .req { color: var(--bad); }
+  .input { width: 100%; min-height: 2.75rem; padding: .6rem .8rem; border: 1.5px solid var(--line-strong); border-radius: .5rem; background: var(--surface); color: var(--ink); font: inherit; }
+  .input:hover:not(:disabled) { border-color: var(--ink); }
+  .input:focus-visible { outline: 3px solid var(--link); outline-offset: 1px; border-color: var(--link); }
+  .input[aria-invalid="true"] { border-color: var(--bad); border-width: 2px; }
+  .input:disabled { background: var(--surface-2); color: var(--muted); cursor: not-allowed; }
+  .hint { font-size: .8125rem; color: var(--muted); margin: .3rem 0 0; }
+  .err { display: flex; gap: .4rem; align-items: flex-start; font-size: .875rem; font-weight: 600; color: var(--bad); margin: .4rem 0 0; }
+  .err::before { content: "!"; flex: none; display: inline-grid; place-items: center; width: 1.1rem; height: 1.1rem; margin-top: .1rem; border-radius: 50%; background: var(--bad); color: var(--surface); font-size: .7rem; }
+  .err[hidden] { display: none; }
+  .check { display: flex; gap: .75rem; align-items: flex-start; }
+  .check input { width: 1.375rem; height: 1.375rem; margin-top: .15rem; flex: none; accent-color: var(--btn); }
+  .check label { margin: 0; font-weight: 500; }
+  .summary { border: 1.5px solid var(--bad); background: var(--bad-tint); border-radius: .625rem; padding: .9rem 1rem; margin-bottom: 1.25rem; }
+  .summary:focus-visible { outline-offset: 2px; }
+  .summary-title { margin: 0 0 .4rem; font-weight: 700; }
+  .summary ul { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: .25rem; }
+
+  .slots-status { font-size: .875rem; color: var(--muted); margin: 0 0 .75rem; min-height: 1.35rem; }
+  .subhead { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin: .75rem 0 .4rem; }
+  .slot-grid { display: grid; gap: .5rem; grid-template-columns: repeat(auto-fill, minmax(6.6rem, 1fr)); }
+  .slot { position: relative; display: block; }
+  .slot input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+  .slot span { display: flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: .4rem .5rem; border: 1.5px solid var(--line-strong); border-radius: .5rem; background: var(--surface); font-family: var(--font-mono); font-size: .8438rem; font-weight: 500; white-space: nowrap; transition: background-color .15s, border-color .15s; }
+  .slot input:hover:not(:disabled) + span { border-color: var(--link); background: var(--tint); color: var(--on-tint); }
+  .slot input:checked + span { background: var(--btn); color: var(--btn-ink); border-color: var(--btn); }
+  .slot input:focus-visible + span { outline: 3px solid var(--link); outline-offset: 2px; }
+  .slot input:disabled { cursor: not-allowed; }
+  .slot input:disabled + span { background: var(--surface-2); color: var(--muted); border-color: var(--line); text-decoration: line-through; }
+
+  .ok-badge { width: 3.5rem; height: 3.5rem; border-radius: 50%; display: grid; place-items: center; background: var(--ok-tint); color: var(--on-ok-tint); }
+  .sum-list { margin: 1.25rem 0; display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: .6rem 1.25rem; font-size: .9375rem; }
+  .sum-list dt { color: var(--muted); }
+  .sum-list dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+  .notice { background: var(--surface-2); border: 1px solid var(--line); border-radius: .625rem; padding: .8rem 1rem; font-size: .875rem; color: var(--muted); margin: 0 0 1rem; }
+  details.json summary { cursor: pointer; font-weight: 600; min-height: 2.5rem; display: flex; align-items: center; color: var(--link); }
+  pre.json { background: var(--surface-2); border: 1px solid var(--line); border-radius: .5rem; padding: 1rem; overflow: auto; font-family: var(--font-mono); font-size: .8125rem; line-height: 1.5; margin: .5rem 0 .75rem; max-width: 100%; }
+  .success-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.25rem; }
+  #booking-success h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.75rem; margin: 1rem 0 .25rem; }
+  #booking-success h2:focus-visible { outline-offset: 4px; }
+</style>
+
+<a class="skip" href="#contenido">Saltar al contenido</a>
+
+<header class="site-header">
+  <div class="wrap hdr">
+    <a class="brand" href="#inicio" aria-label="MediCare Plus, ir al inicio">
+      <svg class="brand-mark" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <rect width="32" height="32" rx="9" fill="currentColor"/>
+        <path d="M16 8v16M8 16h16" stroke="var(--btn-ink)" stroke-width="3.6" stroke-linecap="round"/>
+      </svg>
+      <span>MediCare<em> Plus</em></span>
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#servicios">Servicios</a></li>
+        <li><a href="#especialistas">Especialistas</a></li>
+        <li><a href="#testimonios">Testimonios</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+    </nav>
+    <div class="hdr-actions">
+      <button type="button" class="btn btn-primary btn-sm" data-open-booking>Agendar Cita</button>
+      <button type="button" class="icon-btn menu-btn" id="menu-btn" aria-expanded="false" aria-controls="nav-links" aria-label="Abrir menú">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="contenido" tabindex="-1">
+  <noscript><div class="wrap section"><p class="notice">Esta página necesita JavaScript para mostrar las especialidades, el directorio médico y el formulario de citas.</p></div></noscript>
+
+  <section id="inicio" class="hero" aria-labelledby="hero-title">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Consultorio médico privado</p>
+        <h1 id="hero-title" class="display">Atención médica que te escucha, con turno cuando lo necesitas</h1>
+        <p class="lead">Medicina general, pediatría, cardiología y odontología en un solo consultorio. Elige especialista, día y hora en un solo formulario y recibe tu código de cita al terminar.</p>
+        <div class="cta-row">
+          <button type="button" class="btn btn-primary" data-open-booking>Agendar cita</button>
+          <a class="btn btn-outline" href="#servicios">Ver especialidades</a>
+        </div>
+        <dl class="metrics">
+          <div><dt>años de experiencia</dt><dd>+15</dd></div>
+          <div><dt>satisfacción de pacientes*</dt><dd>99%</dd></div>
+          <div><dt>turnos sin largas esperas</dt><dd>Prioritaria</dd></div>
+        </dl>
+        <p class="fine">* Cifras de ejemplo para este prototipo.</p>
+      </div>
+
+      <!-- Imagen de portada: reemplaza el contenido de .cover por una fotografía (relación 4:5 recomendada) -->
+      <div class="cover">
+        <span class="cover-tag" aria-hidden="true">72 lpm</span>
+        <svg class="ecg" viewBox="0 0 640 200" aria-hidden="true" focusable="false">
+          <path class="base" pathLength="1000" d="M0 110 H150 L170 96 L190 110 H250 L268 126 L296 24 L324 186 L346 92 L362 110 H430 L452 90 L478 110 H640"/>
+          <path class="pulse" pathLength="1000" d="M0 110 H150 L170 96 L190 110 H250 L268 126 L296 24 L324 186 L346 92 L362 110 H430 L452 90 L478 110 H640"/>
+        </svg>
+        <div class="next-card" id="next-card">
+          <p class="label">Primer turno disponible</p>
+          <p class="next-when" id="next-when">Calculando…</p>
+          <p class="meta" id="next-meta">Medicina General · 30 min</p>
+          <button type="button" class="btn btn-primary" id="next-btn" data-open-booking data-especialidad="Medicina General">Reservar este turno</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="servicios" class="section" aria-labelledby="servicios-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Especialidades</p>
+        <h2 id="servicios-title" class="h2">Cuatro especialidades en un solo consultorio</h2>
+        <p class="muted">Cada consulta dura 30 minutos e incluye tiempo para resolver tus dudas.</p>
+      </div>
+      <ul class="cards cols-4" id="specialty-grid" role="list"></ul>
+    </div>
+  </section>
+
+  <section id="especialistas" class="section band" aria-labelledby="equipo-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Equipo médico</p>
+        <h2 id="equipo-title" class="h2">Médicos que conocerás por su nombre</h2>
+        <p class="muted">Cada médico atiende en días y horarios fijos. Elige a quien prefieras o deja que asignemos el primer turno libre.</p>
+      </div>
+      <div class="filters" role="group" aria-label="Filtrar por especialidad" id="team-filters"></div>
+      <p class="sr-only" id="team-count" role="status"></p>
+      <ul class="cards cols-auto" id="team-grid" role="list"></ul>
+      <p class="fine" style="margin-top:1.25rem">Nombres, iniciales y registros médicos de esta sección son datos de ejemplo.</p>
+    </div>
+  </section>
+
+  <section id="testimonios" class="section" aria-labelledby="testimonios-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Testimonios</p>
+        <h2 id="testimonios-title" class="h2">La opinión de quienes ya fueron atendidos</h2>
+        <p class="muted">Aquí se publicarán opiniones reales de pacientes que hayan autorizado su publicación. Mientras tanto, esta sección es una plantilla.</p>
+      </div>
+      <ul class="cards" id="testimonial-grid" role="list" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr))">
+        <li class="card placeholder"><p class="tag" style="margin:0;align-self:flex-start">Plantilla</p><p class="card-text">Espacio para el testimonio de un paciente, con su autorización por escrito.</p><p class="meta">Nombre o iniciales · Especialidad</p></li>
+        <li class="card placeholder"><p class="tag" style="margin:0;align-self:flex-start">Plantilla</p><p class="card-text">Espacio para el testimonio de un paciente, con su autorización por escrito.</p><p class="meta">Nombre o iniciales · Especialidad</p></li>
+        <li class="card placeholder"><p class="tag" style="margin:0;align-self:flex-start">Plantilla</p><p class="card-text">Espacio para el testimonio de un paciente, con su autorización por escrito.</p><p class="meta">Nombre o iniciales · Especialidad</p></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer" id="contacto" aria-labelledby="footer-title">
+  <div class="wrap">
+    <h2 id="footer-title" class="sr-only">Información de contacto y legal</h2>
+    <div class="foot-grid">
+      <div>
+        <p class="brand" style="color:var(--foot-ink);margin-bottom:.75rem"><span>MediCare<em style="color:var(--foot-link)"> Plus</em></span></p>
+        <p class="muted-f">Consultorio médico privado con atención por cita en medicina general, pediatría, cardiología y odontología.</p>
+      </div>
+      <div>
+        <h3 style="font-family:var(--font-mono);font-size:.75rem;letter-spacing:.09em;text-transform:uppercase;color:var(--foot-muted);margin:0 0 .75rem;font-weight:500">Horarios de atención</h3>
+        <ul>
+          <li><span class="mono">Lun a Vie</span> · 8:00 a. m. – 6:00 p. m.</li>
+          <li><span class="mono">Sábados</span> · 8:00 a. m. – 1:00 p. m.</li>
+          <li class="muted-f">Domingos y festivos: cerrado</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="font-family:var(--font-mono);font-size:.75rem;letter-spacing:.09em;text-transform:uppercase;color:var(--foot-muted);margin:0 0 .75rem;font-weight:500">Contacto</h3>
+        <ul>
+          <li>Av. Ejemplo # 00-00, Consultorio 402</li>
+          <li class="mono">+57 300 000 0000</li>
+          <li class="mono">contacto@medicareplus.example</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="font-family:var(--font-mono);font-size:.75rem;letter-spacing:.09em;text-transform:uppercase;color:var(--foot-muted);margin:0 0 .75rem;font-weight:500">Legal</h3>
+        <ul>
+          <li><button type="button" class="linklike" data-open-policy>Política de Tratamiento de Datos de Salud</button></li>
+          <li class="muted-f">Tus datos se usan solo para gestionar tus citas.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <p>© 2026 MediCare Plus S.A.S. · NIT 000.000.000-0 (ejemplo)</p>
+      <p>Sitio de demostración: médicos, registros, cifras y datos de contacto son ficticios.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ───────────── Modal de agendamiento ───────────── -->
+<dialog id="booking-dialog" class="sheet" aria-labelledby="booking-title" aria-describedby="booking-desc">
+  <div class="sheet-head">
+    <div>
+      <h2 id="booking-title">Agendar cita</h2>
+      <p id="booking-desc">Elige especialidad, día y hora. Los campos con <span class="req" aria-hidden="true">*</span><span class="sr-only">asterisco</span> son obligatorios.</p>
+    </div>
+    <button type="button" class="icon-btn" id="booking-close" aria-label="Cerrar formulario de cita">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+
+  <form id="booking-form" class="sheet-form" novalidate>
+    <div class="sheet-body">
+      <div id="error-summary" class="summary" role="alert" tabindex="-1" hidden></div>
+      <fieldset id="form-lock">
+        <div class="group">
+          <p class="group-title" aria-hidden="true">Tu consulta</p>
+          <div class="row row-2">
+            <div class="field">
+              <label for="f-especialidad">Especialidad <span class="req" aria-hidden="true">*</span></label>
+              <select id="f-especialidad" class="input" name="especialidad" required aria-required="true" aria-describedby="err-especialidad"></select>
+              <p class="err" id="err-especialidad" hidden></p>
+            </div>
+            <div class="field">
+              <label for="f-medico">Médico</label>
+              <select id="f-medico" class="input" name="medico" disabled aria-describedby="hint-medico"></select>
+              <p class="hint" id="hint-medico">Si no eliges, asignamos el primer turno libre.</p>
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-fecha">Fecha de la cita <span class="req" aria-hidden="true">*</span></label>
+            <input id="f-fecha" class="input" type="date" name="fecha" required aria-required="true" aria-describedby="hint-fecha err-fecha">
+            <p class="hint" id="hint-fecha">Atendemos de lunes a sábado. Cada médico tiene sus propios días.</p>
+            <p class="err" id="err-fecha" hidden></p>
+          </div>
+          <fieldset id="slots-fieldset" aria-describedby="slots-status err-hora">
+            <legend class="lbl" style="font-weight:600;font-size:.9rem;margin-bottom:.35rem">Hora disponible <span class="req" aria-hidden="true">*</span></legend>
+            <p class="slots-status" id="slots-status" aria-live="polite"></p>
+            <div id="slots-grid"></div>
+            <p class="err" id="err-hora" hidden></p>
+          </fieldset>
+        </div>
+
+        <div class="group">
+          <p class="group-title" aria-hidden="true">Tus datos</p>
+          <div class="field">
+            <label for="f-nombre">Nombre completo <span class="req" aria-hidden="true">*</span></label>
+            <input id="f-nombre" class="input" type="text" name="nombre" autocomplete="name" required aria-required="true" aria-describedby="err-nombre">
+            <p class="err" id="err-nombre" hidden></p>
+          </div>
+          <div class="row row-doc">
+            <div class="field">
+              <label for="f-tipoDoc">Tipo de documento</label>
+              <select id="f-tipoDoc" class="input" name="tipoDoc">
+                <option value="CC">CC · Cédula de ciudadanía</option>
+                <option value="TI">TI · Tarjeta de identidad</option>
+                <option value="RC">RC · Registro civil</option>
+                <option value="CE">CE · Cédula de extranjería</option>
+                <option value="PA">PA · Pasaporte</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-documento">Número de documento <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-documento" class="input" type="text" name="documento" inputmode="text" autocomplete="off" required aria-required="true" aria-describedby="err-documento">
+              <p class="err" id="err-documento" hidden></p>
+            </div>
+          </div>
+          <div class="row row-2">
+            <div class="field">
+              <label for="f-telefono">Teléfono celular <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-telefono" class="input" type="tel" name="telefono" inputmode="tel" autocomplete="tel" required aria-required="true" aria-describedby="hint-telefono err-telefono">
+              <p class="hint" id="hint-telefono">Ejemplo: 300 123 4567</p>
+              <p class="err" id="err-telefono" hidden></p>
+            </div>
+            <div class="field">
+              <label for="f-correo">Correo electrónico <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-correo" class="input" type="email" name="correo" autocomplete="email" required aria-required="true" aria-describedby="err-correo">
+              <p class="err" id="err-correo" hidden></p>
+            </div>
+          </div>
+          <div class="field">
+            <div class="check">
+              <input id="f-consentimiento" type="checkbox" name="consentimiento" required aria-required="true" aria-describedby="err-consentimiento">
+              <label for="f-consentimiento">Autorizo el tratamiento de mis datos personales y de salud para gestionar esta cita. <span class="req" aria-hidden="true">*</span></label>
+            </div>
+            <p class="hint" style="margin-left:2.1rem"><button type="button" class="linklike" data-open-policy>Leer la Política de Tratamiento de Datos de Salud</button></p>
+            <p class="err" id="err-consentimiento" hidden style="margin-left:2.1rem"></p>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+    <div class="sheet-foot">
+      <button type="button" class="btn btn-outline" id="cancel-btn">Cancelar</button>
+      <button type="submit" class="btn btn-primary" id="submit-btn" aria-busy="false">
+        <span class="spinner" aria-hidden="true"></span><span id="submit-label">Confirmar cita</span>
+      </button>
+    </div>
+  </form>
+
+  <div class="sheet-body" id="booking-success" hidden>
+    <div class="ok-badge" aria-hidden="true">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </div>
+    <h2 id="success-title" tabindex="-1">Cita confirmada</h2>
+    <p class="muted" id="success-lead" style="margin:0"></p>
+    <dl class="sum-list">
+      <dt>Código</dt><dd class="mono" id="s-id"></dd>
+      <dt>Especialidad</dt><dd id="s-esp"></dd>
+      <dt>Médico</dt><dd id="s-med"></dd>
+      <dt>Fecha</dt><dd id="s-fecha"></dd>
+      <dt>Hora</dt><dd id="s-hora"></dd>
+      <dt>Paciente</dt><dd id="s-pac"></dd>
+    </dl>
+    <p class="notice" id="s-note"></p>
+    <details class="json">
+      <summary>Ver datos de la cita (JSON)</summary>
+      <pre class="json" id="s-json" tabindex="0" aria-label="Datos de la cita en formato JSON"></pre>
+      <button type="button" class="btn btn-outline btn-sm" id="copy-json">Copiar JSON</button>
+    </details>
+    <div class="success-actions">
+      <button type="button" class="btn btn-primary" id="again-btn">Agendar otra cita</button>
+      <button type="button" class="btn btn-outline" id="done-btn">Cerrar</button>
+    </div>
+  </div>
+  <p class="sr-only" id="sr-status" role="status"></p>
+</dialog>
+
+<!-- ───────────── Política de datos ───────────── -->
+<dialog id="policy-dialog" class="sheet" aria-labelledby="policy-title">
+  <div class="sheet-head">
+    <div>
+      <h2 id="policy-title">Política de Tratamiento de Datos de Salud</h2>
+      <p>MediCare Plus · versión de ejemplo</p>
+    </div>
+    <button type="button" class="icon-btn" id="policy-close" aria-label="Cerrar política de datos">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body policy">
+    <p class="notice">Texto de ejemplo para el prototipo. Antes de publicar el sitio debe ser revisado y adaptado por asesoría legal (Ley 1581 de 2012 y sus decretos reglamentarios, en Colombia).</p>
+    <h3>Responsable</h3>
+    <p>MediCare Plus, consultorio médico privado. Correo de contacto: contacto@medicareplus.example.</p>
+    <h3>Datos que recogemos</h3>
+    <p>Nombre completo, tipo y número de documento, teléfono, correo electrónico, especialidad solicitada y fecha de la cita. La especialidad puede revelar información sobre tu salud, que es un dato sensible.</p>
+    <h3>Para qué los usamos</h3>
+    <p>Para agendar, confirmar y recordarte tu cita. No los usamos con fines comerciales.</p>
+    <h3>Tus derechos</h3>
+    <p>Puedes conocer, actualizar, rectificar y solicitar la supresión de tus datos, y revocar tu autorización. Responder preguntas sobre datos sensibles es opcional.</p>
+    <h3>Dónde se guardan en este prototipo</h3>
+    <p>La cita se guarda solo en el almacenamiento de tu navegador (localStorage). No se envía a ningún servidor. Puedes eliminarla borrando los datos del sitio.</p>
+  </div>
+  <div class="sheet-foot">
+    <button type="button" class="btn btn-primary" id="policy-done">Entendido</button>
+  </div>
+</dialog>
+
+<script type="module">
+/* ═══════════ data/catalogo ═══════════ */
+const TZ = 'America/Bogota';
+const OFFSET = '-05:00';
+const SLOT_MIN = 30;
+const MAX_DIAS = 90;
+const DIAS_CORTOS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+const STORAGE_KEY = 'medicareplus:citas:v1';
+
+const ICONOS = {
+  stethoscope: '<path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/>',
+  baby: '<path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/>',
+  tooth: '<path d="M12 5.5C10.5 4 8 3.5 6.5 4.5 4.5 6 4.5 9 5.5 12c.7 2 1 4 1.5 6.5.3 1.5 1.5 2 2.2.8.8-1.5 1-3.5 2.8-3.5s2 2 2.8 3.5c.7 1.2 1.9.7 2.2-.8.5-2.5.8-4.5 1.5-6.5 1-3 1-6-1-7.5C16 3.5 13.5 4 12 5.5Z"/>'
+};
+
+const ESPECIALIDADES = [
+  { id: 'medicina-general', nombre: 'Medicina General', icono: 'stethoscope', descripcion: 'Chequeos, control de enfermedades crónicas, certificados y orientación para cualquier síntoma.' },
+  { id: 'pediatria', nombre: 'Pediatría', icono: 'baby', descripcion: 'Control de crecimiento, vacunación y atención de niños y adolescentes desde el nacimiento.' },
+  { id: 'cardiologia', nombre: 'Cardiología', icono: 'heart', descripcion: 'Evaluación del corazón, presión arterial y riesgo cardiovascular, con electrocardiograma.' },
+  { id: 'odontologia', nombre: 'Odontología', icono: 'tooth', descripcion: 'Limpieza, calzas, control de caries y valoración de ortodoncia para toda la familia.' }
+];
+
+/* horario: días (0 = domingo) y bloques [inicio, fin] en minutos desde las 00:00, hora de Colombia */
+const DOCTORES = [
+  { id: 'dr-101', nombre: 'Dra. Laura Mejía Cárdenas', especialidad: 'Medicina General', registro: 'RM-DEMO-0101',
+    horario: [{ dias: [1, 2, 3, 4, 5], bloques: [[480, 720], [840, 1020]] }] },
+  { id: 'dr-102', nombre: 'Dr. Santiago Rueda Pardo', especialidad: 'Medicina General', registro: 'RM-DEMO-0102',
+    horario: [{ dias: [1, 3, 5], bloques: [[840, 1080]] }, { dias: [6], bloques: [[480, 780]] }] },
+  { id: 'dr-103', nombre: 'Dra. Valentina Arango Mora', especialidad: 'Pediatría', registro: 'RM-DEMO-0103',
+    horario: [{ dias: [1, 3, 5], bloques: [[480, 720], [840, 1020]] }] },
+  { id: 'dr-104', nombre: 'Dr. Mateo Quintero Lara', especialidad: 'Pediatría', registro: 'RM-DEMO-0104',
+    horario: [{ dias: [2, 4], bloques: [[540, 780], [840, 1080]] }, { dias: [6], bloques: [[480, 720]] }] },
+  { id: 'dr-105', nombre: 'Dr. Felipe Navarro Cortés', especialidad: 'Cardiología', registro: 'RM-DEMO-0105',
+    horario: [{ dias: [1, 2, 4], bloques: [[480, 720], [900, 1080]] }] },
+  { id: 'dr-106', nombre: 'Dra. Isabel Bermúdez Ochoa', especialidad: 'Cardiología', registro: 'RM-DEMO-0106',
+    horario: [{ dias: [3, 5], bloques: [[600, 780], [900, 1080]] }] },
+  { id: 'dr-107', nombre: 'Dra. Natalia Cifuentes Roa', especialidad: 'Odontología', registro: 'RM-DEMO-0107',
+    horario: [{ dias: [1, 2, 3, 4, 5], bloques: [[480, 720], [840, 1080]] }] },
+  { id: 'dr-108', nombre: 'Dr. Julián Escobar Pinzón', especialidad: 'Odontología', registro: 'RM-DEMO-0108',
+    horario: [{ dias: [2, 4, 6], bloques: [[480, 780]] }] }
+];
+
+/* ═══════════ modules/format + clinic-time ═══════════ */
+const pad = (n) => String(n).padStart(2, '0');
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const NB = ' ';
+
+function h12(min) {
+  const h = Math.floor(min / 60), m = min % 60;
+  return `${h % 12 || 12}:${pad(m)}${NB}${h < 12 ? 'a.' + NB + 'm.' : 'p.' + NB + 'm.'}`;
+}
+function diasTexto(dias) {
+  const d = [...dias].sort((a, b) => a - b);
+  if (d.length >= 3 && d[d.length - 1] - d[0] === d.length - 1) return `${DIAS_CORTOS[d[0]]} a ${DIAS_CORTOS[d[d.length - 1]]}`;
+  return d.map((x) => DIAS_CORTOS[x]).join(' · ');
+}
+function horarioLineas(doc) {
+  return doc.horario.map((h) => ({
+    dias: diasTexto(h.dias),
+    horas: h.bloques.map(([a, b]) => `${h12(a)} – ${h12(b)}`).join('  ·  ')
+  }));
+}
+function clinicNow() {
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date());
+  const g = (t) => Number(parts.find((p) => p.type === t).value);
+  return { y: g('year'), fecha: `${g('year')}-${pad(g('month'))}-${pad(g('day'))}`, minutos: g('hour') * 60 + g('minute') };
+}
+function addDays(fecha, n) {
+  const [y, m, d] = fecha.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+}
+function dowOf(fecha) {
+  const [y, m, d] = fecha.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+}
+function fmtFecha(fecha, opts) {
+  const [y, m, d] = fecha.split('-').map(Number);
+  return new Intl.DateTimeFormat('es-CO', { ...opts, timeZone: 'UTC' }).format(new Date(Date.UTC(y, m - 1, d)));
+}
+const fmtFechaLarga = (f) => cap(fmtFecha(f, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
+const fmtFechaCorta = (f) => cap(fmtFecha(f, { weekday: 'short', day: 'numeric', month: 'short' }));
+const isoFechaHora = (fecha, minutos) => `${fecha}T${pad(Math.floor(minutos / 60))}:${pad(minutos % 60)}:00${OFFSET}`;
+
+/* ═══════════ modules/storage ═══════════ */
+let memoryStore = [];
+const storage = {
+  read() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const v = raw ? JSON.parse(raw) : [];
+      return Array.isArray(v) ? v : [];
+    } catch { return memoryStore.slice(); }
+  },
+  write(list) {
+    memoryStore = list.slice();
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); return true; } catch { return false; }
+  }
+};
+function nextId(list, year) {
+  const re = new RegExp(`^MED-${year}-(\\d+)$`);
+  let max = 0;
+  for (const c of list) { const m = re.exec(c && c.idCita || ''); if (m) max = Math.max(max, Number(m[1])); }
+  return `MED-${year}-${pad3(max + 1)}`;
+}
+const pad3 = (n) => String(n).padStart(3, '0');
+
+/* ═══════════ modules/availability ═══════════ */
+const hash = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+/* Ocupación simulada: cerca del 28 % de los turnos aparece ocupado para que el calendario se vea real. */
+const simulatedTaken = (key) => hash(key) % 100 < 28;
+
+function bookedKeys() {
+  const set = new Set();
+  for (const c of storage.read()) {
+    if (!c || c.estado === 'cancelada' || !c.fechaHora || !c.servicio) continue;
+    const f = c.fechaHora.slice(0, 10);
+    const min = Number(c.fechaHora.slice(11, 13)) * 60 + Number(c.fechaHora.slice(14, 16));
+    set.add(`${c.servicio.idMedico}|${f}|${min}`);
+  }
+  return set;
+}
+
+function getSlots(especialidad, medicoId, fecha, now) {
+  const docs = DOCTORES.filter((d) => d.especialidad === especialidad && (!medicoId || medicoId === 'any' || d.id === medicoId));
+  const dow = dowOf(fecha);
+  const booked = bookedKeys();
+  const map = new Map();
+  for (const doc of docs) {
+    for (const h of doc.horario) {
+      if (!h.dias.includes(dow)) continue;
+      for (const [ini, fin] of h.bloques) {
+        for (let t = ini; t + SLOT_MIN <= fin; t += SLOT_MIN) {
+          const key = `${doc.id}|${fecha}|${t}`;
+          let e = map.get(t);
+          if (!e) { e = { minutos: t, disponibles: [] }; map.set(t, e); }
+          if (!simulatedTaken(key) && !booked.has(key)) e.disponibles.push(doc.id);
+        }
+      }
+    }
+  }
+  let out = [...map.values()].sort((a, b) => a.minutos - b.minutos);
+  if (now && fecha === now.fecha) out = out.filter((s) => s.minutos >= now.minutos + 30);
+  return out;
+}
+function proximoTurno(especialidad) {
+  const now = clinicNow();
+  for (let i = 0; i <= 30; i++) {
+    const f = addDays(now.fecha, i);
+    const s = getSlots(especialidad, 'any', f, now).find((x) => x.disponibles.length);
+    if (s) return { fecha: f, minutos: s.minutos };
+  }
+  return null;
+}
+function fechaProblem(fecha, now) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return 'Escribe una fecha válida.';
+  if (fecha < now.fecha) return 'Esa fecha ya pasó. Elige una fecha desde hoy.';
+  if (fecha > addDays(now.fecha, MAX_DIAS)) return `Solo agendamos con hasta ${MAX_DIAS} días de anticipación.`;
+  return '';
+}
+// @@PURE-END
+
+/* ═══════════ modules/render ═══════════ */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const icon = (name, size = 26) => `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONOS[name]}</svg>`;
+
+function renderSpecialties() {
+  $('#specialty-grid').innerHTML = ESPECIALIDADES.map((e) => `
+    <li class="card">
+      <div class="ico">${icon(e.icono)}</div>
+      <h3 class="card-title">${e.nombre}</h3>
+      <p class="muted card-text">${e.descripcion}</p>
+      <p class="mono meta">Consulta de ${SLOT_MIN} min</p>
+      <button type="button" class="btn btn-outline" data-open-booking data-especialidad="${e.nombre}" aria-label="Consultar ${e.nombre}">Consultar</button>
+    </li>`).join('');
+}
+
+let teamFilter = 'all';
+function renderFilters() {
+  const items = [{ id: 'all', nombre: 'Todos' }, ...ESPECIALIDADES];
+  $('#team-filters').innerHTML = items.map((e) => `<button type="button" class="chip" data-filter="${e.id === 'all' ? 'all' : e.nombre}" aria-pressed="${(teamFilter === 'all' ? 'all' : teamFilter) === (e.id === 'all' ? 'all' : e.nombre)}">${e.nombre}</button>`).join('');
+}
+function renderTeam() {
+  const list = DOCTORES.filter((d) => teamFilter === 'all' || d.especialidad === teamFilter);
+  $('#team-grid').innerHTML = list.map((d) => {
+    const ini = d.nombre.replace(/^Dra?\.\s+/, '').split(' ').slice(0, 2).map((p) => p[0]).join('');
+    const lines = horarioLineas(d).map((l) => `<li><span class="mono">${l.dias}</span>${l.horas}</li>`).join('');
+    return `
+    <li class="card">
+      <div class="team-top">
+        <span class="avatar" aria-hidden="true">${ini}</span>
+        <div><h3 class="card-title">${d.nombre}</h3><p class="tag">${d.especialidad}</p></div>
+      </div>
+      <dl class="facts">
+        <div><dt>Registro médico</dt><dd class="mono">${d.registro}</dd></div>
+        <div><dt>Horarios de consulta</dt><dd><ul class="sched">${lines}</ul></dd></div>
+      </dl>
+      <button type="button" class="btn btn-outline" data-open-booking data-especialidad="${d.especialidad}" data-medico="${d.id}" aria-label="Agendar cita con ${d.nombre}">Agendar cita</button>
+    </li>`;
+  }).join('');
+  $('#team-count').textContent = `Mostrando ${list.length} ${list.length === 1 ? 'médico' : 'médicos'}${teamFilter === 'all' ? '' : ' de ' + teamFilter}.`;
+}
+function renderNext() {
+  const p = proximoTurno('Medicina General');
+  const when = $('#next-when'), btn = $('#next-btn');
+  if (!p) { when.textContent = 'Sin turnos por ahora'; btn.hidden = true; return; }
+  btn.hidden = false;
+  when.textContent = `${fmtFechaCorta(p.fecha)} · ${h12(p.minutos)}`;
+  btn.dataset.fecha = p.fecha;
+  btn.dataset.minutos = String(p.minutos);
+}
+
+/* ═══════════ modules/booking ═══════════ */
+const state = { busy: false, token: 0, lastTrigger: null };
+const dlg = $('#booking-dialog');
+const form = $('#booking-form');
+const F = {
+  especialidad: $('#f-especialidad'), medico: $('#f-medico'), fecha: $('#f-fecha'),
+  nombre: $('#f-nombre'), tipoDoc: $('#f-tipoDoc'), documento: $('#f-documento'),
+  telefono: $('#f-telefono'), correo: $('#f-correo'), consentimiento: $('#f-consentimiento')
+};
+const LABELS = { especialidad: 'Especialidad', fecha: 'Fecha', hora: 'Hora', nombre: 'Nombre completo', documento: 'Número de documento', telefono: 'Teléfono celular', correo: 'Correo electrónico', consentimiento: 'Autorización de datos' };
+const ORDER = ['especialidad', 'fecha', 'hora', 'nombre', 'documento', 'telefono', 'correo', 'consentimiento'];
+
+const getHora = () => { const r = form.querySelector('input[name="hora"]:checked'); return r ? Number(r.value) : null; };
+
+function fillEspecialidades() {
+  F.especialidad.innerHTML = '<option value="">Selecciona una especialidad</option>' + ESPECIALIDADES.map((e) => `<option value="${e.nombre}">${e.nombre}</option>`).join('');
+}
+function rebuildDoctors(selected) {
+  const esp = F.especialidad.value, sel = F.medico;
+  if (!esp) { sel.innerHTML = '<option value="any">Primero elige una especialidad</option>'; sel.disabled = true; return; }
+  sel.disabled = false;
+  sel.innerHTML = '<option value="any">Primer médico disponible</option>' + DOCTORES.filter((d) => d.especialidad === esp).map((d) => `<option value="${d.id}">${d.nombre}</option>`).join('');
+  if (selected) sel.value = selected;
+}
+function renderSlots(preselect) {
+  const esp = F.especialidad.value, fecha = F.fecha.value, doc = F.medico.value || 'any';
+  const grid = $('#slots-grid'), status = $('#slots-status');
+  const prev = preselect !== undefined ? preselect : getHora();
+  grid.innerHTML = '';
+  if (!esp || !fecha) { status.textContent = !esp ? 'Elige una especialidad y una fecha para ver los horarios.' : 'Elige una fecha para ver los horarios.'; return; }
+  const now = clinicNow();
+  const problem = fechaProblem(fecha, now);
+  if (problem) { status.textContent = problem; return; }
+  const slots = getSlots(esp, doc, fecha, now);
+  if (!slots.length) { status.textContent = 'Ese día no hay atención para esta selección. Prueba con otra fecha.'; return; }
+  const libres = slots.filter((s) => s.disponibles.length).length;
+  status.textContent = libres ? `${libres} ${libres === 1 ? 'horario disponible' : 'horarios disponibles'} el ${fmtFechaLarga(fecha).toLowerCase()}.` : 'Todos los horarios de ese día están ocupados. Prueba con otra fecha.';
+  const group = (title, list) => list.length ? `<p class="subhead">${title}</p><div class="slot-grid">${list.map((s) => {
+    const free = s.disponibles.length > 0;
+    return `<label class="slot"><input type="radio" name="hora" value="${s.minutos}"${free ? '' : ' disabled'}${free && prev === s.minutos ? ' checked' : ''}><span>${h12(s.minutos)}${free ? '' : '<span class="sr-only"> (ocupado)</span>'}</span></label>`;
+  }).join('')}</div>` : '';
+  grid.innerHTML = group('Mañana', slots.filter((s) => s.minutos < 720)) + group('Tarde', slots.filter((s) => s.minutos >= 720));
+}
+
+/* validación */
+function check(key) {
+  const now = clinicNow();
+  const v = (el) => el.value.trim();
+  switch (key) {
+    case 'especialidad': return F.especialidad.value ? '' : 'Selecciona una especialidad.';
+    case 'fecha': {
+      if (!F.fecha.value) return 'Elige una fecha para tu cita.';
+      const p = fechaProblem(F.fecha.value, now);
+      if (p) return p;
+      if (F.especialidad.value && !getSlots(F.especialidad.value, F.medico.value, F.fecha.value, now).length) return 'Ese día no hay atención para esta selección. Elige otra fecha.';
+      return '';
+    }
+    case 'hora': return getHora() === null ? 'Elige una hora disponible.' : '';
+    case 'nombre': {
+      const n = v(F.nombre).replace(/\s+/g, ' ');
+      if (!n) return 'Escribe tu nombre completo.';
+      if (n.split(' ').length < 2 || n.length < 5 || !/^[\p{L}][\p{L}\s'.\-]+$/u.test(n)) return 'Escribe tu nombre y apellido, solo con letras.';
+      return '';
+    }
+    case 'documento': {
+      const d = v(F.documento).replace(/[\s.\-]/g, ''), t = F.tipoDoc.value;
+      if (!d) return 'Escribe tu número de documento.';
+      if (['CC', 'TI', 'RC'].includes(t)) return /^\d{6,11}$/.test(d) ? '' : 'Usa solo números, entre 6 y 11 dígitos.';
+      return /^[A-Za-z0-9]{5,15}$/.test(d) ? '' : 'Usa letras y números, entre 5 y 15 caracteres.';
+    }
+    case 'telefono': {
+      const t = v(F.telefono).replace(/[\s\-()]/g, '');
+      if (!t) return 'Escribe tu número de celular.';
+      return /^(\+?57)?3\d{9}$/.test(t) ? '' : 'Escribe un celular colombiano de 10 dígitos, por ejemplo 300 123 4567.';
+    }
+    case 'correo': {
+      const c = v(F.correo);
+      if (!c) return 'Escribe tu correo electrónico.';
+      return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(c) ? '' : 'Revisa el formato del correo, por ejemplo nombre@correo.com.';
+    }
+    case 'consentimiento': return F.consentimiento.checked ? '' : 'Debes autorizar el tratamiento de tus datos para agendar la cita.';
+  }
+  return '';
+}
+function applyError(key, msg) {
+  const err = $('#err-' + key);
+  const el = F[key];
+  if (msg) {
+    err.textContent = msg; err.hidden = false;
+    if (el) el.setAttribute('aria-invalid', 'true');
+  } else {
+    err.textContent = ''; err.hidden = true;
+    if (el) el.removeAttribute('aria-invalid');
+  }
+}
+function focusField(key) {
+  const el = key === 'hora' ? (form.querySelector('input[name="hora"]:not(:disabled)') || F.fecha) : F[key];
+  if (el) { el.focus(); el.scrollIntoView({ block: 'center' }); }
+}
+function showSummary(errors) {
+  const box = $('#error-summary');
+  box.innerHTML = '';
+  const p = document.createElement('p');
+  p.className = 'summary-title';
+  p.textContent = errors.length === 1 ? 'Revisa 1 campo antes de continuar' : `Revisa ${errors.length} campos antes de continuar`;
+  const ul = document.createElement('ul');
+  for (const e of errors) {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'linklike'; b.dataset.key = e.key;
+    b.textContent = `${LABELS[e.key]}: ${e.msg}`;
+    li.appendChild(b); ul.appendChild(li);
+  }
+  box.append(p, ul);
+  box.hidden = false;
+  box.focus();
+}
+const hideSummary = () => { const b = $('#error-summary'); b.hidden = true; b.innerHTML = ''; };
+
+function setBusy(b) {
+  state.busy = b;
+  $('#form-lock').disabled = b;
+  const btn = $('#submit-btn');
+  btn.disabled = b; btn.setAttribute('aria-busy', String(b));
+  $('#submit-label').textContent = b ? 'Confirmando…' : 'Confirmar cita';
+  $('#cancel-btn').disabled = b;
+  form.setAttribute('aria-busy', String(b));
+}
+function resetForm() {
+  form.reset();
+  fillEspecialidades();
+  rebuildDoctors();
+  ORDER.forEach((k) => applyError(k, ''));
+  hideSummary();
+  setBusy(false);
+  $('#slots-grid').innerHTML = '';
+  $('#slots-status').textContent = 'Elige una especialidad y una fecha para ver los horarios.';
+}
+function showForm() { form.hidden = false; $('#booking-success').hidden = true; $('#booking-title').parentElement.parentElement.hidden = false; }
+
+function syncScrollLock() { document.documentElement.classList.toggle('modal-open', $$('dialog[open]').length > 0); }
+function openDialog(d) { if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', ''); syncScrollLock(); }
+
+function openBooking(pre = {}, trigger = null) {
+  state.token++;
+  state.lastTrigger = trigger || document.activeElement;
+  resetForm();
+  showForm();
+  const now = clinicNow();
+  F.fecha.min = now.fecha; F.fecha.max = addDays(now.fecha, MAX_DIAS);
+  if (pre.especialidad) { F.especialidad.value = pre.especialidad; rebuildDoctors(pre.medico); }
+  if (pre.fecha) F.fecha.value = pre.fecha;
+  renderSlots(pre.minutos);
+  if (!dlg.open) openDialog(dlg);
+  const first = !pre.especialidad ? F.especialidad : (!pre.fecha ? F.fecha : F.nombre);
+  first.focus();
+}
+
+async function confirmar() {
+  const token = state.token;
+  setBusy(true);
+  await new Promise((r) => setTimeout(r, 900));
+  if (token !== state.token) return;
+  const now = clinicNow();
+  const esp = F.especialidad.value, fecha = F.fecha.value, minutos = getHora();
+  const slot = getSlots(esp, F.medico.value, fecha, now).find((s) => s.minutos === minutos);
+  const docId = slot && slot.disponibles[0];
+  if (!docId) {
+    setBusy(false); renderSlots();
+    applyError('hora', 'Ese horario ya no está disponible. Elige otro.');
+    showSummary([{ key: 'hora', msg: 'Ese horario ya no está disponible. Elige otro.' }]);
+    return;
+  }
+  const doc = DOCTORES.find((d) => d.id === docId);
+  const lista = storage.read();
+  const cita = {
+    idCita: nextId(lista, now.y),
+    paciente: {
+      tipoDocumento: F.tipoDoc.value,
+      nombreCompleto: F.nombre.value.trim().replace(/\s+/g, ' '),
+      documento: F.documento.value.trim().replace(/[\s.\-]/g, ''),
+      telefono: '+57' + F.telefono.value.replace(/[\s\-()+]/g, '').slice(-10),
+      correo: F.correo.value.trim()
+    },
+    servicio: { especialidad: esp, idMedico: doc.id, medicoAsignado: doc.nombre },
+    fechaHora: isoFechaHora(fecha, minutos),
+    estado: 'confirmada',
+    consentimientoDatos: true,
+    creadoEn: isoFechaHora(now.fecha, now.minutos)
+  };
+  lista.push(cita);
+  const saved = storage.write(lista);
+  setBusy(false);
+  showSuccess(cita, saved);
+  renderNext();
+}
+
+function showSuccess(cita, saved) {
+  form.hidden = true;
+  $('#booking-success').hidden = false;
+  const f = cita.fechaHora.slice(0, 10), min = Number(cita.fechaHora.slice(11, 13)) * 60 + Number(cita.fechaHora.slice(14, 16));
+  $('#success-lead').textContent = `Te esperamos el ${fmtFechaLarga(f).toLowerCase()} a las ${h12(min)}.`;
+  $('#s-id').textContent = cita.idCita;
+  $('#s-esp').textContent = cita.servicio.especialidad;
+  $('#s-med').textContent = cita.servicio.medicoAsignado;
+  $('#s-fecha').textContent = fmtFechaLarga(f);
+  $('#s-hora').textContent = h12(min);
+  $('#s-pac').textContent = cita.paciente.nombreCompleto;
+  $('#s-note').textContent = saved
+    ? 'Prototipo: la cita quedó guardada solo en este navegador (localStorage). No se envió a ningún consultorio.'
+    : 'Prototipo: este navegador bloqueó el almacenamiento, así que la cita solo existe mientras esta página siga abierta.';
+  $('#s-json').textContent = JSON.stringify(cita, null, 2);
+  $('#sr-status').textContent = `Cita confirmada con código ${cita.idCita}.`;
+  const h = $('#success-title');
+  h.focus();
+  $('#booking-success').scrollTop = 0;
+}
+
+/* eventos del formulario */
+F.especialidad.addEventListener('change', () => { rebuildDoctors(); renderSlots(); if (!$('#err-fecha').hidden) applyError('fecha', check('fecha')); });
+F.medico.addEventListener('change', () => renderSlots());
+F.fecha.addEventListener('change', () => { renderSlots(); if (!$('#err-fecha').hidden) applyError('fecha', check('fecha')); });
+for (const key of ['nombre', 'documento', 'telefono', 'correo']) {
+  F[key].addEventListener('blur', () => { if (F[key].value || !$('#err-' + key).hidden) applyError(key, check(key)); });
+  F[key].addEventListener('input', () => { if (!$('#err-' + key).hidden) applyError(key, check(key)); });
+}
+F.tipoDoc.addEventListener('change', () => { if (!$('#err-documento').hidden) applyError('documento', check('documento')); });
+F.consentimiento.addEventListener('change', () => { if (!$('#err-consentimiento').hidden) applyError('consentimiento', check('consentimiento')); });
+form.addEventListener('change', (e) => { if (e.target.name === 'hora') applyError('hora', ''); });
+$('#error-summary').addEventListener('click', (e) => { const b = e.target.closest('[data-key]'); if (b) focusField(b.dataset.key); });
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (state.busy) return;
+  const errors = ORDER.map((k) => ({ key: k, msg: check(k) })).filter((x) => x.msg);
+  ORDER.forEach((k) => applyError(k, (errors.find((x) => x.key === k) || {}).msg || ''));
+  if (errors.length) { showSummary(errors); return; }
+  hideSummary();
+  confirmar();
+});
+
+$('#again-btn').addEventListener('click', () => { resetForm(); showForm(); F.especialidad.focus(); });
+$('#done-btn').addEventListener('click', () => dlg.close());
+$('#cancel-btn').addEventListener('click', () => dlg.close());
+$('#booking-close').addEventListener('click', () => dlg.close());
+$('#copy-json').addEventListener('click', async (ev) => {
+  const btn = ev.currentTarget, pre = $('#s-json');
+  try { await navigator.clipboard.writeText(pre.textContent); btn.textContent = 'Copiado'; }
+  catch { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = 'Selecciona y copia (Ctrl+C)'; }
+  setTimeout(() => { btn.textContent = 'Copiar JSON'; }, 2200);
+});
+
+/* diálogos: cierre por fondo, foco de regreso, bloqueo de scroll */
+let downOnBackdrop = false;
+function wireDialog(d) {
+  d.addEventListener('mousedown', (e) => { downOnBackdrop = e.target === d; });
+  d.addEventListener('click', (e) => { if (e.target === d && downOnBackdrop) d.close(); });
+}
+const policy = $('#policy-dialog');
+let policyTrigger = null;
+wireDialog(dlg); wireDialog(policy);
+dlg.addEventListener('close', () => {
+  state.token++; syncScrollLock();
+  const t = state.lastTrigger;
+  if (t && t.isConnected && typeof t.focus === 'function') t.focus();
+});
+policy.addEventListener('close', () => {
+  syncScrollLock();
+  if (policyTrigger && policyTrigger.isConnected) policyTrigger.focus();
+});
+$('#policy-close').addEventListener('click', () => policy.close());
+$('#policy-done').addEventListener('click', () => policy.close());
+
+/* ═══════════ main ═══════════ */
+renderSpecialties();
+renderFilters();
+renderTeam();
+renderNext();
+fillEspecialidades();
+rebuildDoctors();
+
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-open-booking]');
+  if (b) {
+    e.preventDefault();
+    openBooking({ especialidad: b.dataset.especialidad, medico: b.dataset.medico, fecha: b.dataset.fecha, minutos: b.dataset.minutos ? Number(b.dataset.minutos) : undefined }, b);
+    closeMenu();
+    return;
+  }
+  const p = e.target.closest('[data-open-policy]');
+  if (p) { e.preventDefault(); policyTrigger = p; openDialog(policy); return; }
+  const c = e.target.closest('[data-filter]');
+  if (c) { teamFilter = c.dataset.filter; renderFilters(); renderTeam(); $(`[data-filter="${CSS.escape(teamFilter)}"]`).focus(); }
+});
+
+/* navegación móvil */
+const menuBtn = $('#menu-btn'), navLinks = $('#nav-links');
+function closeMenu() { navLinks.dataset.open = 'false'; menuBtn.setAttribute('aria-expanded', 'false'); menuBtn.setAttribute('aria-label', 'Abrir menú'); }
+menuBtn.addEventListener('click', () => {
+  const open = navLinks.dataset.open !== 'true';
+  navLinks.dataset.open = String(open);
+  menuBtn.setAttribute('aria-expanded', String(open));
+  menuBtn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+});
+navLinks.addEventListener('click', (e) => { if (e.target.closest('a')) closeMenu(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && navLinks.dataset.open === 'true') { closeMenu(); menuBtn.focus(); } });
+
+/* sección activa en la navegación */
+if ('IntersectionObserver' in window) {
+  const links = new Map($$('.nav-links a').map((a) => [a.getAttribute('href').slice(1), a]));
+  const io = new IntersectionObserver((entries) => {
+    for (const en of entries) {
+      if (!en.isIntersecting) continue;
+      links.forEach((a, id) => a.removeAttribute('aria-current'));
+      const a = links.get(en.target.id);
+      if (a) a.setAttribute('aria-current', 'true');
+    }
+  }, { rootMargin: '-35% 0px -55% 0px' });
+  ['servicios', 'especialistas', 'testimonios', 'contacto'].forEach((id) => { const el = document.getElementById(id); if (el) io.observe(el); });
+}
+</script>
+
+</body></html>
